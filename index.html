@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday Destination Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            touch-action: manipulation;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .app-header {
+            color: white;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: bold;
+        }
+
+        .destination-card {
+            background: white;
+            border-radius: 25px;
+            padding: 30px 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .destination-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .destination-card:active {
+            transform: scale(0.98);
+        }
+
+        .destination-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24);
+        }
+
+        .destination-visual {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 20px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .destination-visual::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 15s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .destination-emoji {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            z-index: 1;
+            position: relative;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .destination-name {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            z-index: 1;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.1;
+        }
+
+        .destination-tagline {
+            font-size: 1em;
+            opacity: 0.9;
+            z-index: 1;
+            position: relative;
+            font-style: italic;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .tap-instruction {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 10px 0;
+            box-shadow: 0 8px 16px rgba(255,107,107,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 8px 16px rgba(255,107,107,0.3); }
+            to { box-shadow: 0 8px 20px rgba(255,107,107,0.5); }
+        }
+
+        .social-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .social-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-1px);
+        }
+
+        .counter {
+            color: white;
+            font-size: 0.9em;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .placeholder {
+            color: rgba(255,255,255,0.7);
+            font-style: italic;
+        }
+
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .share-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 300px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .share-option {
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .share-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .close-modal {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 500px) {
+            .destination-name {
+                font-size: 1.8em;
+            }
+            
+            .destination-emoji {
+                font-size: 3em;
+            }
+            
+            .destination-card {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">🌍 Tap for Your Next Adventure!</div>
+        
+        <div class="destination-card" onclick="generateDestination()">
+            <div class="destination-visual" id="destinationVisual">
+                <div class="destination-emoji">✈️</div>
+                <div class="destination-name placeholder">Tap to Discover</div>
+                <div class="destination-tagline placeholder">Your adventure awaits!</div>
+            </div>
+            
+            <div class="tap-instruction">👆 Tap Card Above</div>
+            
+            <div class="social-actions">
+                <button class="social-btn" onclick="shareDestination(event)">📱 Share</button>
+                <button class="social-btn" onclick="copyToClipboard(event)">📋 Copy</button>
+                <button class="social-btn" onclick="saveImage(event)">💾 Save</button>
+            </div>
+        </div>
+
+        <div class="counter" id="counter">Destinations discovered: 0</div>
+    </div>
+
+    <div class="share-modal" id="shareModal">
+        <div class="share-content">
+            <h3>Share Your Destination!</h3>
+            <div class="share-options">
+                <a href="#" class="share-option" id="shareInstagram">📸 Instagram</a>
+                <a href="#" class="share-option" id="shareFacebook">📘 Facebook</a>
+                <a href="#" class="share-option" id="shareTwitter">🐦 Twitter</a>
+                <a href="#" class="share-option" id="shareWhatsApp">💬 WhatsApp</a>
+            </div>
+            <button class="close-modal" onclick="closeShareModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const destinations = [
+            { name: "Santorini", emoji: "🏛️", tagline: "White cliffs meet azure seas" },
+            { name: "Tokyo", emoji: "🌸", tagline: "Where tradition meets innovation" },
+            { name: "Bali", emoji: "🌺", tagline: "Island paradise awaits" },
+            { name: "Paris", emoji: "🗼", tagline: "City of lights and romance" },
+            { name: "Iceland", emoji: "🏔️", tagline: "Land of fire and ice" },
+            { name: "New York", emoji: "🏙️", tagline: "The city that never sleeps" },
+            { name: "Morocco", emoji: "🕌", tagline: "Spices and Sahara dreams" },
+            { name: "Thailand", emoji: "🛺", tagline: "Tropical paradise vibes" },
+            { name: "Switzerland", emoji: "🏔️", tagline: "Alpine peaks and lakes" },
+            { name: "Australia", emoji: "🦘", tagline: "Outback and coastal wonders" },
+            { name: "Brazil", emoji: "🌴", tagline: "Samba and beach magic" },
+            { name: "Egypt", emoji: "🏺", tagline: "Ancient wonders await" },
+            { name: "India", emoji: "🕌", tagline: "Colors and incredible culture" },
+            { name: "Norway", emoji: "🦌", tagline: "Fjords and northern lights" },
+            { name: "Mexico", emoji: "🌮", tagline: "Vibrant culture and beaches" },
+            { name: "Kenya", emoji: "🦁", tagline: "Safari adventures await" },
+            { name: "Portugal", emoji: "🏰", tagline: "Coastal charm and history" },
+            { name: "Peru", emoji: "🏔️", tagline: "Ancient ruins and adventures" },
+            { name: "South Korea", emoji: "🏮", tagline: "K-culture meets mountains" },
+            { name: "Turkey", emoji: "🎈", tagline: "Where East meets West" },
+            { name: "Vietnam", emoji: "🛶", tagline: "Motorbikes and mountains" },
+            { name: "Costa Rica", emoji: "🦜", tagline: "Pura vida and nature" },
+            { name: "Jordan", emoji: "🏜️", tagline: "Desert roses and treasures" },
+            { name: "Ireland", emoji: "🍀", tagline: "Emerald landscapes" },
+            { name: "Dubai", emoji: "🏗️", tagline: "Modern desert marvels" },
+            { name: "Maldives", emoji: "🏖️", tagline: "Crystal waters and bliss" },
+            { name: "Chile", emoji: "🍷", tagline: "Wine valleys and landscapes" },
+            { name: "Nepal", emoji: "🏔️", tagline: "Himalayan heights" },
+            { name: "Cuba", emoji: "🚗", tagline: "Vintage Caribbean soul" },
+            { name: "Indonesia", emoji: "🌋", tagline: "Endless island adventures" }
+        ];
+
+        const gradients = [
+            "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+            "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+            "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+            "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+            "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)",
+            "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
+            "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)",
+            "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            "linear-gradient(135deg, #30cfd0 0%, #91a7ff 100%)"
+        ];
+
+        let currentDestination = null;
+        let discoveryCount = 0;
+
+        function generateDestination() {
+            const randomDestination = destinations[Math.floor(Math.random() * destinations.length)];
+            const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+            
+            currentDestination = randomDestination;
+            discoveryCount++;
+            
+            const visual = document.getElementById('destinationVisual');
+            const emoji = visual.querySelector('.destination-emoji');
+            const name = visual.querySelector('.destination-name');
+            const tagline = visual.querySelector('.destination-tagline');
+            const counter = document.getElementById('counter');
+            
+            // Add animation
+            visual.style.transform = 'scale(0.95)';
+            visual.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                // Update content
+                emoji.textContent = randomDestination.emoji;
+                name.textContent = randomDestination.name;
+                name.classList.remove('placeholder');
+                tagline.textContent = randomDestination.tagline;
+                tagline.classList.remove('placeholder');
+                
+                // Update gradient
+                visual.style.background = randomGradient;
+                
+                // Animate back
+                visual.style.transform = 'scale(1)';
+                visual.style.opacity = '1';
+                visual.style.transition = 'all 0.3s ease';
+                
+                // Update counter
+                counter.textContent = `Destinations discovered: ${discoveryCount}`;
+                
+                // Add celebration effect
+                if (discoveryCount % 5 === 0) {
+                    showCelebration();
+                }
+            }, 150);
+        }
+
+        function shareDestination(event) {
+            event.stopPropagation();
+            if (!currentDestination) {
+                alert('Generate a destination first!');
+                return;
+            }
+            
+            const shareText = `🌍 My next adventure: ${currentDestination.name}! ${currentDestination.emoji} ${currentDestination.tagline}`;
+            
+            // Update share links
+            const encodedText = encodeURIComponent(shareText);
+            const url = encodeURIComponent(window.location.href);
+            
+            document.getElementById('shareInstagram').href = `https://www.instagram.com/`;
+            document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodedText}`;
+            document.getElementById('shareTwitter').href = `https://twitter.com/intent/tweet?text=${encodedText}`;
+            document.getElementById('shareWhatsApp').href = `https://wa.me/?text=${encodedText}`;
+            
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function copyToClipboard(event) {
+            event.stopPropagation();
+            if (!currentDestination) {
+                alert('Generate a destination first!');
+                return;
+            }
+            
+            const shareText = `🌍 My next adventure: ${currentDestination.name}! ${currentDestination.emoji} ${currentDestination.tagline}`;
+            
+            navigator.clipboard.writeText(shareText).then(() => {
+                showNotification('Copied to clipboard!');
+            });
+        }
+
+        function saveImage(event) {
+            event.stopPropagation();
+            if (!currentDestination) {
+                alert('Generate a destination first!');
+                return;
+            }
+            
+            showNotification('Take a screenshot to save!');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4ecdc4;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 25px;
+                font-weight: bold;
+                z-index: 1001;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function showCelebration() {
+            const celebration = document.createElement('div');
+            celebration.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 3em;
+                z-index: 1001;
+                animation: celebrate 1s ease;
+                pointer-events: none;
+            `;
+            celebration.textContent = '🎉✨🌟';
+            document.body.appendChild(celebration);
+            
+            setTimeout(() => {
+                celebration.remove();
+            }, 1000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes celebrate {
+                0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+                50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Close modal when clicking outside
+        document.getElementById('shareModal').addEventListener('click', (e) => {
+            if (e.target.id === 'shareModal') {
+                closeShareModal();
+            }
+        });
+    </script>
+</body>
+</html>
